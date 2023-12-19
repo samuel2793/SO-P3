@@ -41,8 +41,23 @@ class MemoryManager:
                 return self.partitions[i]
         return None
 
+    def worst_fit(self, process):
+        largest_partition = None
+        for partition in self.partitions:
+            if not partition.process and partition.size >= process.memory_required:
+                if largest_partition is None or partition.size > largest_partition.size:
+                    largest_partition = partition
+        return largest_partition
+
     def allocate_memory(self, process, allocation_algorithm):
-        partition = self.first_fit(process) if allocation_algorithm == 'first_fit' else self.next_fit(process)
+        if allocation_algorithm == 'first_fit':
+            partition = self.first_fit(process)
+        elif allocation_algorithm == 'next_fit':
+            partition = self.next_fit(process)
+        elif allocation_algorithm == 'worst_fit':
+            partition = self.worst_fit(process)
+        else:
+            raise ValueError("Unknown allocation algorithm")
 
         if partition:
             if partition.size > process.memory_required:
@@ -112,17 +127,31 @@ def write_output_file(file_path, memory_states):
         for state in memory_states:
             file.write(state + '\n')
 
-def main(input_file, output_file, allocation_algorithm):
+def main(input_file, output_file):
     processes = read_input_file(input_file)
     memory_manager = MemoryManager()
+
+    print("Elige el algoritmo de asignación de memoria:")
+    print("1. Primer Hueco (First Fit)")
+    print("2. Siguiente Hueco (Next Fit)")
+    print("3. Peor Hueco (Worst Fit)")
+    choice = input("Introduce el número del algoritmo: ")
+
+    if choice == '1':
+        allocation_algorithm = 'first_fit'
+    elif choice == '2':
+        allocation_algorithm = 'next_fit'
+    elif choice == '3':
+        allocation_algorithm = 'worst_fit'
+    else:
+        print("Selección inválida. Usando Primer Hueco por defecto.")
+        allocation_algorithm = 'first_fit'
+
     memory_states = memory_manager.run_simulation(processes, allocation_algorithm)
     write_output_file(output_file, memory_states)
 
-# Assuming the input file is named 'entrada.txt' and the output file is 'particiones.txt'
-# The path should be adjusted to the actual input file location
+# Ajusta las rutas de los archivos según sea necesario
 input_file_path = 'entrada.txt'
 output_file_path = 'particiones.txt'
-allocation_algorithm = 'first_fit'  # or 'next_fit'
 
-# Call the main function with the input file, output file, and the allocation algorithm
-main(input_file_path, output_file_path, allocation_algorithm)
+main(input_file_path, output_file_path)
