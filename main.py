@@ -78,7 +78,9 @@ class MemoryManager:
             while current_time < process.arrival_time:
                 self.free_memory(current_time)
                 self.merge_free_partitions()
-                memory_states.append(self.get_memory_state(current_time))
+                # Solo agregar estado de la memoria si hay cambios
+                if any(partition.process for partition in self.partitions):
+                    memory_states.append(self.get_memory_state(current_time))
                 current_time += 1
 
             self.free_memory(current_time)
@@ -95,6 +97,7 @@ class MemoryManager:
             current_time += 1
 
         return memory_states
+
 
     def get_memory_state(self, current_time):
         state = f"{current_time} " + " ".join(str(partition) for partition in self.partitions)
