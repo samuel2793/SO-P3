@@ -74,34 +74,44 @@ class MemoryManager:
     def run_simulation(self, processes, allocation_algorithm):
         current_time = 0
         memory_states = []
+        visual_representations = []  # Almacenar las representaciones visuales
         for process in sorted(processes, key=lambda x: x.arrival_time):
             while current_time < process.arrival_time:
                 self.free_memory(current_time)
                 self.merge_free_partitions()
-                # Solo agregar estado de la memoria si hay cambios
                 if any(partition.process for partition in self.partitions):
-                    memory_states.append(self.get_memory_state(current_time))
+                    state, visual_representation = self.get_memory_state(current_time)
+                    memory_states.append(state)
+                    visual_representations.append(visual_representation)
                 current_time += 1
 
             self.free_memory(current_time)
             self.merge_free_partitions()
             self.allocate_memory(process, allocation_algorithm)
-            memory_states.append(self.get_memory_state(current_time))
+            state, visual_representation = self.get_memory_state(current_time)
+            memory_states.append(state)
+            visual_representations.append(visual_representation)
             current_time += 1
 
         # Free all remaining processes and merge partitions
         while any(p.process for p in self.partitions):
             self.free_memory(current_time)
             self.merge_free_partitions()
-            memory_states.append(self.get_memory_state(current_time))
+            state, visual_representation = self.get_memory_state(current_time)
+            memory_states.append(state)
+            visual_representations.append(visual_representation)
             current_time += 1
 
-        return memory_states
-
+        return memory_states, visual_representations
 
     def get_memory_state(self, current_time):
+        visual_representation = "****************************************\n"
+        for partition in self.partitions:
+            block = "P" if partition.process else "L"
+            visual_representation += f"* {block} ({str(partition.size).rjust(4)}) " + "*" * (partition.size // 100) + "\n"
+        visual_representation += "****************************************"
         state = f"{current_time} " + " ".join(str(partition) for partition in self.partitions)
-        return state
+        return state, visual_representation
 
 def read_input_file(file_path):
     processes = []
@@ -135,8 +145,13 @@ def main(input_file, output_file):
         print("Selección inválida. Usando Mejor Hueco por defecto.")
         allocation_algorithm = 'best_fit'
 
-    memory_states = memory_manager.run_simulation(processes, allocation_algorithm)
+    memory_states, visual_representations = memory_manager.run_simulation(processes, allocation_algorithm)
     write_output_file(output_file, memory_states)
+
+    # Imprimir la representación visual
+    for visual_representation in visual_representations:
+        print(visual_representation)
+        print()  # Agregar espacio entre cada estado de memoria
 
 # Ajusta las rutas de los archivos según sea necesario
 input_file_path = 'entrada.txt'
