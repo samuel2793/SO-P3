@@ -1,4 +1,5 @@
-import re  # Importar la biblioteca de expresiones regulares
+import sys
+import re
 
 class Process:
     def __init__(self, name, arrival_time, memory_required, execution_time):
@@ -171,4 +172,14 @@ def main(input_file, output_file):
 input_file_path = 'entrada.txt'
 output_file_path = 'particiones.txt'
 
-main(input_file_path, output_file_path)
+# Ejecución python main.py entrada.txt particiones.txt
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("Uso: python script.py <archivo_entrada> <archivo_salida>")
+        sys.exit(1)
+
+    input_file_path = sys.argv[1]
+    output_file_path = sys.argv[2]
+
+    main(input_file_path, output_file_path)
