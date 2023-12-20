@@ -1,3 +1,5 @@
+import re  # Importar la biblioteca de expresiones regulares
+
 class Process:
     def __init__(self, name, arrival_time, memory_required, execution_time):
         self.name = name
@@ -108,13 +110,19 @@ class MemoryManager:
         line_length = 40  # Define la longitud total de cada línea
         visual_representation = "*" * line_length + "\n"
         for partition in self.partitions:
-            block = "P" if partition.process else "L"
+            if partition.process:
+                # Extrae el número del nombre del proceso usando una expresión regular
+                process_number = re.search(r'\d+', partition.process.name)
+                block = f"P{process_number.group()}" if process_number else "P"
+            else:
+                block = "L"
             size_str = f"({partition.size})"
             line = f"* {block} {size_str}".ljust(line_length - 1) + "*"  # Alinea a la izquierda y añade asterisco al final
             visual_representation += line + "\n"
         visual_representation += "*" * line_length
         state = f"{current_time} " + " ".join(str(partition) for partition in self.partitions)
         return state, visual_representation
+
 
 def read_input_file(file_path):
     processes = []
