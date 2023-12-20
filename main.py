@@ -77,7 +77,7 @@ class MemoryManager:
     def run_simulation(self, processes, allocation_algorithm):
         current_time = 0
         memory_states = []
-        visual_representations = []  # Almacenar las representaciones visuales
+        visual_representations = [] 
         for process in sorted(processes, key=lambda x: x.arrival_time):
             while current_time < process.arrival_time:
                 self.free_memory(current_time)
@@ -96,7 +96,6 @@ class MemoryManager:
             visual_representations.append(visual_representation)
             current_time += 1
 
-        # Free all remaining processes and merge partitions
         while any(p.process for p in self.partitions):
             self.free_memory(current_time)
             self.merge_free_partitions()
@@ -108,18 +107,16 @@ class MemoryManager:
         return memory_states, visual_representations
 
     def get_memory_state(self, current_time):
-        line_length = 40  # Define la longitud total de cada línea
+        line_length = 40 
         visual_representation = "*" * line_length + "\n"
         for partition in self.partitions:
             if partition.process:
-                # Extrae el número del nombre del proceso usando una expresión regular
                 process_number = re.search(r'\d+', partition.process.name)
                 block = f"P{process_number.group()}" if process_number else "P"
             else:
                 block = "L"
             size_str = f"({partition.size})"
             partition_info = f"{block} {size_str}"
-            # Centrar la información de la partición en la línea
             centered_partition_info = partition_info.center(line_length - 2)
             line = f"*{centered_partition_info}*"
             visual_representation += line + "\n"
@@ -133,7 +130,7 @@ def read_input_file(file_path):
     with open(file_path, 'r') as file:
         for line in file.readlines():
             parts = line.split()
-            if parts[0] != '<Proceso>':  # Skip the header or any other non-data lines
+            if parts[0] != '<Proceso>':
                 name, arrival_time, memory_required, execution_time = parts
                 processes.append(Process(name, int(arrival_time), int(memory_required), int(execution_time)))
     return processes
@@ -163,14 +160,9 @@ def main(input_file, output_file):
     memory_states, visual_representations = memory_manager.run_simulation(processes, allocation_algorithm)
     write_output_file(output_file, memory_states)
 
-    # Imprimir la representación visual
     for visual_representation in visual_representations:
         print(visual_representation)
-        print()  # Agregar espacio entre cada estado de memoria
-
-# Ajusta las rutas de los archivos según sea necesario
-input_file_path = 'entrada.txt'
-output_file_path = 'particiones.txt'
+        print()
 
 # Ejecución python main.py entrada.txt particiones.txt
 
