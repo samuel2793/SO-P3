@@ -117,7 +117,10 @@ class MemoryManager:
             else:
                 block = "L"
             size_str = f"({partition.size})"
-            line = f"* {block} {size_str}".ljust(line_length - 1) + "*"  # Alinea a la izquierda y añade asterisco al final
+            partition_info = f"{block} {size_str}"
+            # Centrar la información de la partición en la línea
+            centered_partition_info = partition_info.center(line_length - 2)
+            line = f"*{centered_partition_info}*"
             visual_representation += line + "\n"
         visual_representation += "*" * line_length
         state = f"{current_time} " + " ".join(str(partition) for partition in self.partitions)
