@@ -105,11 +105,14 @@ class MemoryManager:
         return memory_states, visual_representations
 
     def get_memory_state(self, current_time):
-        visual_representation = "****************************************\n"
+        line_length = 40  # Define la longitud total de cada línea
+        visual_representation = "*" * line_length + "\n"
         for partition in self.partitions:
             block = "P" if partition.process else "L"
-            visual_representation += f"* {block} ({str(partition.size).rjust(4)}) " + "*" * (partition.size // 100) + "\n"
-        visual_representation += "****************************************"
+            size_str = f"({partition.size})"
+            line = f"* {block} {size_str}".ljust(line_length - 1) + "*"  # Alinea a la izquierda y añade asterisco al final
+            visual_representation += line + "\n"
+        visual_representation += "*" * line_length
         state = f"{current_time} " + " ".join(str(partition) for partition in self.partitions)
         return state, visual_representation
 
