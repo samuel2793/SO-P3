@@ -25,28 +25,30 @@ class MemoryManager:
     def __init__(self, total_memory=2000):
         self.total_memory = total_memory
         self.partitions = [MemoryPartition(0, total_memory)]
+        self.last_assigned_partition = 0
 
-    def best_fit(self, process):
-        suitable_partition = None
+    def first_fit(self, process):
         for partition in self.partitions:
             if not partition.process and partition.size >= process.memory_required:
-                if suitable_partition is None or partition.size < suitable_partition.size:
-                    suitable_partition = partition
-        return suitable_partition
+                return partition
+        return None
 
-    def worst_fit(self, process):
-        largest_partition = None
-        for partition in self.partitions:
-            if not partition.process and partition.size >= process.memory_required:
-                if largest_partition is None or partition.size > largest_partition.size:
-                    largest_partition = partition
-        return largest_partition
+    def next_fit(self, process):
+        for i in range(self.last_assigned_partition, len(self.partitions)):
+            if not self.partitions[i].process and self.partitions[i].size >= process.memory_required:
+                self.last_assigned_partition = i
+                return self.partitions[i]
+        for i in range(0, self.last_assigned_partition):
+            if not self.partitions[i].process and self.partitions[i].size >= process.memory_required:
+                self.last_assigned_partition = i
+                return self.partitions[i]
+        return None
 
     def allocate_memory(self, process, allocation_algorithm):
-        if allocation_algorithm == 'best_fit':
-            partition = self.best_fit(process)
-        elif allocation_algorithm == 'worst_fit':
-            partition = self.worst_fit(process)
+        if allocation_algorithm == 'first_fit':
+            partition = self.first_fit(process)
+        elif allocation_algorithm == 'next_fit':
+            partition = self.next_fit(process)
         else:
             raise ValueError("Unknown allocation algorithm")
 
@@ -145,17 +147,17 @@ def main(input_file, output_file):
     memory_manager = MemoryManager()
 
     print("Elige el algoritmo de asignación de memoria:")
-    print("1. Mejor Hueco (Best Fit)")
-    print("2. Peor Hueco (Worst Fit)")
+    print("1. Primer Hueco (First Fit)")
+    print("2. Siguiente Hueco (Next Fit)")
     choice = input("Introduce el número del algoritmo: ")
 
     if choice == '1':
-        allocation_algorithm = 'best_fit'
+        allocation_algorithm = 'first_fit'
     elif choice == '2':
-        allocation_algorithm = 'worst_fit'
+        allocation_algorithm = 'next_fit'
     else:
-        print("Selección inválida. Usando Mejor Hueco por defecto.")
-        allocation_algorithm = 'best_fit'
+        print("Selección inválida. Usando Primer Hueco por defecto.")
+        allocation_algorithm = 'first_fit'
 
     memory_states, visual_representations = memory_manager.run_simulation(processes, allocation_algorithm)
     write_output_file(output_file, memory_states)
