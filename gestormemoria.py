@@ -166,7 +166,7 @@ def main(input_file, output_file):
         print(visual_representation)
         print()
 
-# Ejecución python main.py entrada.txt particiones.txt
+# Ejecución python gestormemoria.py entrada.txt particiones.txt
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
